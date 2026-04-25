@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🍚 오늘 뭐먹지? (Today's Bob)
 
-## Getting Started
+지역별 식당 및 카페를 큐레이션하고 추천해주는 웹 애플리케이션입니다. 고민되는 점심 및 저녁 메뉴 선택을 도와주며, 밥값을 누가 낼지 결정하는 재미있는 미니 게임도 제공합니다.
 
-First, run the development server:
+## ✨ 주요 기능
+
+- **식당 및 카페 큐레이션**: 서대문구, 신촌 지역의 다양한 식당과 카페 정보를 제공합니다.
+- **지역별 카테고리 필터링**: URL 파라미터 및 탭을 통해 '서대문지역'과 '신촌지역' 데이터를 쉽게 전환할 수 있습니다.
+- **검색 및 태그 필터**: 원하는 식당 이름을 검색하거나 카테고리 필터를 다중 선택하여 찾아볼 수 있습니다.
+- **랜덤 추천 (럭키 박스)**: 메뉴 선택이 어려울 때 랜덤으로 1곳의 식당을 추천해줍니다.
+- **누가 밥 살까? 미니게임 (Who Buys)**: 여러 명이 모였을 때 사다리 게임이나 핑거 피커(화면에 손가락 대기)를 통해 재미있게 결제자를 정할 수 있습니다. 위트 있는 성경 구절도 함께 제공됩니다.
+
+## 🛠 기술 스택
+
+- **Framework**: [Next.js](https://nextjs.org/) (App Router, Turbopack)
+- **Styling**: Vanilla CSS (Forest-Green 테마)
+- **Data Management**: .json 파일에 json 형식으로 데이터 관리함
+
+## 🚀 로컬 실행 방법
 
 ```bash
+# 종속성 설치
+npm install
+
+# 개발 서버 실행
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+이후 브라우저에서 [http://localhost:3000](http://localhost:3000)으로 접속하여 결과를 확인합니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🗂 데이터 추가 방법
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+식당 및 카페 데이터는 별도의 데이터베이스 없이 프로젝트 내의 `.json` 파일들로 관리됩니다. 새로운 식당이나 카페를 추가하고 싶다면 기존 JSON 양식에 맞추어 데이터를 추가하면 화면에 즉시 반영됩니다.
