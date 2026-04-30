@@ -3,10 +3,11 @@
 import React from 'react';
 
 interface Restaurant {
+  id: string;
   name: string;
   categories: string[];
   address: string;
-  mainMenus: string[];
+  menuList: string[];
 }
 
 interface LuckyBoxProps {
@@ -24,7 +25,7 @@ const LuckyBox: React.FC<LuckyBoxProps> = ({ restaurant, onClose }) => {
         <div className="bob-restaurant-name" style={{ fontSize: '2rem', marginBottom: '1rem' }}>
           {restaurant.name}
         </div>
-        
+
         <div className="bob-card-categories" style={{ justifyContent: 'center', marginBottom: '1.5rem' }}>
           {restaurant.categories.map((cat, i) => (
             <span key={i} className="bob-category-tag">{cat}</span>
@@ -32,7 +33,7 @@ const LuckyBox: React.FC<LuckyBoxProps> = ({ restaurant, onClose }) => {
         </div>
 
         <div className="bob-menu-list" style={{ justifyContent: 'center', marginBottom: '1.5rem' }}>
-          {restaurant.mainMenus.map((menu, i) => (
+          {restaurant.menuList.map((menu, i) => (
             <span key={i} className="bob-menu-item">{menu}</span>
           ))}
         </div>

@@ -3,18 +3,19 @@
 import React from 'react';
 
 interface Cafe {
+  id: string;
   name: string;
   categories: string[];
   address: string;
-  mainMenus: string[];
+  menuList: string[];
+  mapUrl?: string;
 }
 
 interface CafeCardProps {
   restaurant: Cafe;
-  onCopy: (address: string) => void;
 }
 
-const CafeCard: React.FC<CafeCardProps> = ({ restaurant, onCopy }) => {
+const CafeCard: React.FC<CafeCardProps> = ({ restaurant }) => {
   return (
     <div className="cafe-restaurant-card">
       <div className="cafe-card-header">
@@ -28,15 +29,20 @@ const CafeCard: React.FC<CafeCardProps> = ({ restaurant, onCopy }) => {
 
       <div
         className="cafe-address-box"
-        onClick={() => onCopy(restaurant.address)}
-        title="클릭하여 주소 복사"
+        onClick={() => {
+          if (restaurant.mapUrl && restaurant.mapUrl.trim() !== "") {
+            window.open(restaurant.mapUrl, '_blank', 'noopener,noreferrer');
+          }
+        }}
+        style={{ cursor: restaurant.mapUrl && restaurant.mapUrl.trim() !== "" ? 'pointer' : 'default' }}
+        title={restaurant.mapUrl && restaurant.mapUrl.trim() !== "" ? "클릭하여 지도 보기" : ""}
       >
         <span>📍 {restaurant.address}</span>
         {/* <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>(클릭하여 복사)</span> */}
       </div>
 
       <div className="cafe-menu-list">
-        {restaurant.mainMenus.map((menu, i) => (
+        {restaurant.menuList.map((menu, i) => (
           <span key={i} className="cafe-menu-item">{menu}</span>
         ))}
       </div>

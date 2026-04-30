@@ -7,18 +7,23 @@ import LuckyBox from './_components/CafeLuckyBox';
 import './cafe.css';
 import Link from 'next/link';
 import { Region, REGION_TO_PARAM, parseRegionParam } from '../enum/region';
+import { fetchCsvByRegion } from '../utils/csvParser';
 
 interface Cafe {
+  id: string;
   name: string;
   categories: string[];
   address: string;
-  mainMenus: string[];
+  menuList: string[];
+  mapUrl?: string;
 }
 
-const REGION_CONFIG: Record<Region, { label: string; emoji: string; dataUrl: string }> = {
-  '서대문': { label: '서대문', emoji: '🏛️', dataUrl: '/data/cafes.json' },
-  '신촌': { label: '신촌', emoji: '🎓', dataUrl: '/data/sinchon_cafes.json' },
+const REGION_CONFIG: Record<Region, { label: string; emoji: string }> = {
+  '서대문': { label: '서대문', emoji: '🏛️' },
+  '신촌': { label: '신촌', emoji: '🎓' },
 };
+
+const CSV_URL = '/data/cafes.csv';
 
 function CafePageContent() {
   const searchParams = useSearchParams();
@@ -33,7 +38,6 @@ function CafePageContent() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategories, setActiveCategories] = useState<string[]>(['전체']);
   const [luckyResult, setLuckyResult] = useState<Cafe | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Fisher-Yates shuffle helper
@@ -46,15 +50,14 @@ function CafePageContent() {
     return shuffled;
   };
 
-  // Load data for both regions
+  // Load data for both regions from a single CSV
   useEffect(() => {
     setIsMounted(true);
 
     const regions: Region[] = ['서대문', '신촌'];
     regions.forEach((region) => {
-      fetch(REGION_CONFIG[region].dataUrl)
-        .then((res) => res.json())
-        .then((data: Cafe[]) => {
+      fetchCsvByRegion<Cafe>(CSV_URL, REGION_TO_PARAM[region])
+        .then((data) => {
           setCafesByRegion((prev) => ({
             ...prev,
             [region]: shuffle(data),
@@ -109,7 +112,7 @@ function CafePageContent() {
     return cafes.filter((r) => {
       const matchesSearch =
         r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.mainMenus.some((m) => m.toLowerCase().includes(searchTerm.toLowerCase()));
+        r.menuList.some((m) => m.toLowerCase().includes(searchTerm.toLowerCase()));
 
       const matchesCategory =
         activeCategories.includes('전체') ||
@@ -127,14 +130,6 @@ function CafePageContent() {
     }
     const randomIndex = Math.floor(Math.random() * filteredCafes.length);
     setLuckyResult(filteredCafes[randomIndex]);
-  };
-
-  // Copy to Clipboard
-  const handleCopy = (address: string) => {
-    navigator.clipboard.writeText(address).then(() => {
-      setToast('주소가 복사되었습니다! 📋');
-      setTimeout(() => setToast(null), 2000);
-    });
   };
 
   if (!isMounted) return null;
@@ -227,11 +222,10 @@ function CafePageContent() {
 
         <div className="cafe-restaurant-list">
           {filteredCafes.length > 0 ? (
-            filteredCafes.map((res, index) => (
+            filteredCafes.map((res) => (
               <RestaurantCard
-                key={`${res.name}-${index}`}
+                key={res.id}
                 restaurant={res}
-                onCopy={handleCopy}
               />
             ))
           ) : (
@@ -245,12 +239,6 @@ function CafePageContent() {
           restaurant={luckyResult}
           onClose={() => setLuckyResult(null)}
         />
-
-        {toast && (
-          <div className="cafe-copy-toast">
-            {toast}
-          </div>
-        )}
 
         {/* <footer style={{ marginTop: '5rem', paddingBottom: '2rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--cafe-text-muted)' }}>
           <p>© 2026 카페 큐레이션 리스트. All rights reserved.</p>

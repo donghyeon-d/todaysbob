@@ -9,18 +9,23 @@ import LuckyBox from './_components/LuckyBox';
 import './bob.css';
 
 import { Region, REGION_TO_PARAM, parseRegionParam } from './enum/region';
+import { fetchCsvByRegion } from './utils/csvParser';
 
 interface Restaurant {
+  id: string;
   name: string;
   categories: string[];
   address: string;
-  mainMenus: string[];
+  menuList: string[];
+  mapUrl?: string;
 }
 
-const REGION_CONFIG: Record<Region, { label: string; emoji: string; dataUrl: string }> = {
-  '서대문': { label: '서대문', emoji: '🏛️', dataUrl: '/data/restaurants.json' },
-  '신촌': { label: '신촌', emoji: '🎓', dataUrl: '/data/sinchon_restaurants.json' },
+const REGION_CONFIG: Record<Region, { label: string; emoji: string }> = {
+  '서대문': { label: '서대문', emoji: '🏛️' },
+  '신촌': { label: '신촌', emoji: '🎓' },
 };
+
+const CSV_URL = '/data/restaurants.csv';
 
 function BobPageContent() {
   const searchParams = useSearchParams();
@@ -35,7 +40,6 @@ function BobPageContent() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategories, setActiveCategories] = useState<string[]>(['전체']);
   const [luckyResult, setLuckyResult] = useState<Restaurant | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Fisher-Yates shuffle helper
@@ -48,15 +52,14 @@ function BobPageContent() {
     return shuffled;
   };
 
-  // Load data for both regions
+  // Load data for both regions from a single CSV
   useEffect(() => {
     setIsMounted(true);
 
     const regions: Region[] = ['서대문', '신촌'];
     regions.forEach((region) => {
-      fetch(REGION_CONFIG[region].dataUrl)
-        .then((res) => res.json())
-        .then((data: Restaurant[]) => {
+      fetchCsvByRegion<Restaurant>(CSV_URL, REGION_TO_PARAM[region])
+        .then((data) => {
           setRestaurantsByRegion((prev) => ({
             ...prev,
             [region]: shuffle(data),
@@ -111,7 +114,7 @@ function BobPageContent() {
     return restaurants.filter((r) => {
       const matchesSearch =
         r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.mainMenus.some((m) => m.toLowerCase().includes(searchTerm.toLowerCase()));
+        r.menuList.some((m) => m.toLowerCase().includes(searchTerm.toLowerCase()));
 
       const matchesCategory =
         activeCategories.includes('전체') ||
@@ -129,14 +132,6 @@ function BobPageContent() {
     }
     const randomIndex = Math.floor(Math.random() * filteredRestaurants.length);
     setLuckyResult(filteredRestaurants[randomIndex]);
-  };
-
-  // Copy to Clipboard
-  const handleCopy = (address: string) => {
-    navigator.clipboard.writeText(address).then(() => {
-      setToast('주소가 복사되었습니다! 📋');
-      setTimeout(() => setToast(null), 2000);
-    });
   };
 
   if (!isMounted) return null;
@@ -229,11 +224,10 @@ function BobPageContent() {
 
         <div className="bob-restaurant-list">
           {filteredRestaurants.length > 0 ? (
-            filteredRestaurants.map((res, index) => (
+            filteredRestaurants.map((res) => (
               <RestaurantCard
-                key={`${res.name}-${index}`}
+                key={res.id}
                 restaurant={res}
-                onCopy={handleCopy}
               />
             ))
           ) : (
@@ -247,12 +241,6 @@ function BobPageContent() {
           restaurant={luckyResult}
           onClose={() => setLuckyResult(null)}
         />
-
-        {toast && (
-          <div className="bob-copy-toast">
-            {toast}
-          </div>
-        )}
 
         {/* <footer style={{ marginTop: '5rem', paddingBottom: '2rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--bob-text-muted)' }}>
           <p>© 2026 맛집 큐레이션 리스트. All rights reserved.</p>
